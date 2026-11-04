@@ -2,7 +2,7 @@
 
 ## Overview
 
-[`5_bird_identifier_w4a16_trt.py`](file:///F:/PycharmProjects/BirdIdentifier/5_bird_identifier_w4a16_trt.py) (based on [`5.py`](file:///F:/PycharmProjects/BirdIdentifier/5.py)) is an automated, real-time edge computing pipeline designed for bird acoustic activity detection, neural species classification, and vintage ornithological field guide illustration. It operates completely **offline** without internet access on the **NVIDIA Jetson Orin Nano** (Jetpack 7.2 / Tegra R39.2 / Ubuntu 24.04 LTS Noble Numbat) using dual TensorRT hardware acceleration.
+[`7_bird_identifier_w4a16_trt.py`](file:///F:/PycharmProjects/BirdIdentifier/7_bird_identifier_w4a16_trt.py) (based on [`5.py`](file:///F:/PycharmProjects/BirdIdentifier/5.py)) is an automated, real-time edge computing pipeline designed for bird acoustic activity detection, neural species classification, and vintage ornithological field guide illustration. It operates completely **offline** without internet access on the **NVIDIA Jetson Orin Nano** (Jetpack 7.2 / Tegra R39.2 / Ubuntu 24.04 LTS Noble Numbat) using dual TensorRT hardware acceleration.
 
 The pipeline features a unified, process-safe multiprocess logging system and **bidirectional zero-collision VRAM memory deallocation**:
 1. **Predictor-to-Artist Sequential Deallocation**: Immediately after classifying the bird with the `BirdID_US.trt` engine, the predictor worker completely unloads the model from memory and frees the execution context **before** placing the predicted bird binomial name onto the inter-process communication (IPC) queue (`predict_queue`).
@@ -94,10 +94,10 @@ flowchart TD
 
 ### 3. `PredictorWorker` (`predict`)
 - **Role**: Zero-allocation audio ingestion, spectrogram feature extraction, on-demand TensorRT species identification, memory reclamation, and taxonomic logging.
-- **In-Memory Audio Ingestion**: [`AudioPrep`](file:///F:/PycharmProjects/BirdIdentifier/5_bird_identifier_w4a16_trt.py#L196) synthesizes a standard 44-byte RIFF/WAV header directly in memory and wraps contiguous audio memory into a `torch.uint8` buffer passed to `torchcodec.decoders.AudioDecoder`. This avoids temporary disk files or intermediate byte stream overhead.
+- **In-Memory Audio Ingestion**: [`AudioPrep`](file:///F:/PycharmProjects/BirdIdentifier/7_bird_identifier_w4a16_trt.py#L196) synthesizes a standard 44-byte RIFF/WAV header directly in memory and wraps contiguous audio memory into a `torch.uint8` buffer passed to `torchcodec.decoders.AudioDecoder`. This avoids temporary disk files or intermediate byte stream overhead.
 - **Mel-Spectrogram Generation**: Transforms decoded mono audio into a log-Mel spectrogram (`n_fft=2048`, `hop_length=512`, `n_mels=128`), scaled to decibels and resized to `(64, 256)`.
 - **Toolbox Integration**: Normalizes features using [`scale_minmax`](file:///F:/PycharmProjects/BirdIdentifier/toolbox/toolbox.py#L110) imported directly from [`toolbox/toolbox.py`](file:///F:/PycharmProjects/BirdIdentifier/toolbox/toolbox.py).
-- **On-Demand TensorRT Acceleration**: Executes inference via [`TensorRTInference`](file:///F:/PycharmProjects/BirdIdentifier/5_bird_identifier_w4a16_trt.py#L274) using PyCUDA pinned host memory and async CUDA streams. If TensorRT or the model engine (`models/us/BirdID_US.trt`) is unavailable, it gracefully fails over to simulated development mode.
+- **On-Demand TensorRT Acceleration**: Executes inference via [`TensorRTInference`](file:///F:/PycharmProjects/BirdIdentifier/7_bird_identifier_w4a16_trt.py#L274) using PyCUDA pinned host memory and async CUDA streams. If TensorRT or the model engine (`models/us/BirdID_US.trt`) is unavailable, it gracefully fails over to simulated development mode.
 - **Taxonomy Resolution**: Resolves predicted class IDs to scientific bird names using `class_mapping_us.csv`.
 - **Prediction Logging**: Appends the classified bird binomial name and timestamp into `logs/birdid_log_YYYYMMDD.txt` using [`DirectoryAccessor`](file:///F:/PycharmProjects/BirdIdentifier/toolbox/toolbox.py#L297) and [`get_time_str`](file:///F:/PycharmProjects/BirdIdentifier/toolbox/toolbox.py#L1343) from [`toolbox/toolbox.py`](file:///F:/PycharmProjects/BirdIdentifier/toolbox/toolbox.py).
 - **Zero-Collision Sequential Memory Deallocation**:
@@ -219,7 +219,7 @@ from toolbox.toolbox import get_time_str, scale_minmax, DirectoryAccessor
 
 3. **Execute the Pipeline**:
    ```bash
-   python 5_bird_identifier_w4a16_trt.py
+   python 7_bird_identifier_w4a16_trt.py
    ```
 
 4. **Monitoring Logs in Real-Time**:
