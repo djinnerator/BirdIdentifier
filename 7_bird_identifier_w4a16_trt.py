@@ -67,7 +67,6 @@ from PIL import Image, ImageDraw
 os.environ["HF_HUB_OFFLINE"] = "1"
 os.environ["TRANSFORMERS_OFFLINE"] = "1"
 
-# Import reusable utilities from toolbox (do not re-implement in this file)
 from toolbox.toolbox import get_time_str, scale_minmax, DirectoryAccessor
 
 # Hardware USB libraries for ReSpeaker XVF3800
